@@ -1,0 +1,3 @@
+/Users/zekiyildiz/CLionProjects/CENG209Homework/cmake-build-debug/CMakeFiles/CENG209Homework.dir
+/Users/zekiyildiz/CLionProjects/CENG209Homework/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/zekiyildiz/CLionProjects/CENG209Homework/cmake-build-debug/CMakeFiles/rebuild_cache.dir
