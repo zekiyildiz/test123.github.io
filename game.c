@@ -47,11 +47,48 @@ GameState *init_game() {
     game->rooms[8] = create_room("A vault guarded by ancient traps.");
     game->rooms[9] = create_room("A treasure room glittering with gold and jewels. The golden crown must be here.");
 
-    // Oda bağlantıları (lineer sağa doğru)
-    for(int i = 0; i < game->room_count; i++) {
-        if(i > 0) game->rooms[i]->left = game->rooms[i-1];
-        if(i < game->room_count - 1) game->rooms[i]->right = game->rooms[i+1];
-    }
+    // Oda bağlantıları (daha karmaşık bir harita)
+    // Room 0 connections
+    game->rooms[0]->right = game->rooms[1];
+
+    // Room 1 connections
+    game->rooms[1]->left = game->rooms[0];
+    game->rooms[1]->right = game->rooms[2];
+    game->rooms[1]->down = game->rooms[3];
+
+    // Room 2 connections
+    game->rooms[2]->left = game->rooms[1];
+    game->rooms[2]->right = game->rooms[4];
+    game->rooms[2]->down = game->rooms[5];
+
+    // Room 3 connections
+    game->rooms[3]->up = game->rooms[1];
+    game->rooms[3]->down = game->rooms[6];
+
+    // Room 4 connections
+    game->rooms[4]->left = game->rooms[2];
+    game->rooms[4]->up = game->rooms[7];
+
+    // Room 5 connections
+    game->rooms[5]->up = game->rooms[2];
+    game->rooms[5]->right = game->rooms[8];
+
+    // Room 6 connections
+    game->rooms[6]->up = game->rooms[3];
+    game->rooms[6]->right = game->rooms[9];
+
+    // Room 7 connections
+    game->rooms[7]->down = game->rooms[4];
+    game->rooms[7]->right = game->rooms[8];
+
+    // Room 8 connections
+    game->rooms[8]->left = game->rooms[7];
+    game->rooms[8]->up = game->rooms[5];
+    game->rooms[8]->right = game->rooms[9];
+
+    // Room 9 connections
+    game->rooms[9]->left = game->rooms[8];
+    game->rooms[9]->down = game->rooms[6];
 
     // Eşyalar
     add_item_to_room(game->rooms[0], create_item("iron_sword", 5, ITEM_TYPE_WEAPON, 5, 0, 10));
@@ -66,7 +103,6 @@ GameState *init_game() {
     add_item_to_room(game->rooms[9], create_item("golden_crown", 1, ITEM_TYPE_QUEST, 0, 0, 0));
 
     // Canavarlar (oda zorluğuna göre)
-    // xp_reward, gold_reward artabilir ilerledikçe
     game->rooms[0]->creature = create_creature("goblin", 30, 5, 30, 10);
     game->rooms[1]->creature = create_creature("orc", 40, 7, 40, 20);
     game->rooms[2]->creature = create_creature("troll", 50, 10, 50, 30);
@@ -83,6 +119,7 @@ GameState *init_game() {
     return game;
 }
 
+
 void free_game(GameState *game) {
     if(game) {
         for(int i=0; i<game->room_count; i++) {
@@ -97,13 +134,26 @@ void free_game(GameState *game) {
 void show_room(GameState *game) {
     if(game->won) return;
     Room *r = game->rooms[game->player->current_room];
-    printf("%s\n", r->description);
+    printf("\n%s\n", r->description);
+
+    // Mevcut yönleri göster
+    printf("Exits: ");
+    int first = 1;
+    if(r->up) { printf("up"); first = 0; }
+    if(r->down) { if(!first) printf(", "); printf("down"); first = 0; }
+    if(r->left) { if(!first) printf(", "); printf("left"); first = 0; }
+    if(r->right) { if(!first) printf(", "); printf("right"); }
+    printf("\n");
+
+    // Oda eşyalarını göster
     if(r->item_count > 0) {
         printf("Items here:\n");
         for(int i=0; i<r->item_count; i++) {
             printf(" - %s\n", r->items[i]->name);
         }
     }
+
+    // Oda canavarını göster
     if(r->creature) {
         printf("A %s blocks your way.\n", r->creature->name);
     }
@@ -113,6 +163,7 @@ int move_player(GameState *game, const char *direction) {
     if(game->game_over || game->won) return 0;
     Room *current = game->rooms[game->player->current_room];
     Room *next = NULL;
+
     if(strcmp(direction,"up")==0) next = current->up;
     else if(strcmp(direction,"down")==0) next = current->down;
     else if(strcmp(direction,"left")==0) next = current->left;
@@ -123,9 +174,8 @@ int move_player(GameState *game, const char *direction) {
     }
 
     if(next) {
-        // Canavarı canlı olan bir odaya girebilirsin, engel yok.
-        // Sadece move.
-        for(int i=0; i<game->room_count; i++) {
+        // Bulunan odayı tespit et ve oyuncuyu oraya taşı
+        for(int i = 0; i < game->room_count; i++) {
             if(game->rooms[i] == next) {
                 game->player->current_room = i;
                 game->rooms[i]->discovered = 1;
@@ -140,6 +190,7 @@ int move_player(GameState *game, const char *direction) {
     }
     return 0;
 }
+
 
 void attack_creature(GameState *game) {
     if(game->game_over || game->won) return;
@@ -242,7 +293,7 @@ void check_victory_condition(GameState *game) {
         }
     }
     if(has_crown && game->player->current_room == 0) {
-        printf("You have returned with the golden crown! Lord Gerede will be pleased!\n");
+        printf("\nYou have returned with the golden crown! Lord Gerede will be pleased!\n");
         printf("You win!\n");
         game->won = 1;
         game->game_over = 1;
