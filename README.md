@@ -1,7 +1,7 @@
 CENG209 Dungeon Game
 Overview
 
-This is a text-based adventure game developed in C, designed for the CENG209 course. Players navigate through a dungeon, collect items, engage in battles with creatures, and strive to retrieve the legendary golden crown. Utilize strategic commands to manage your inventory, restore health, and overcome challenges within the dungeon's depths.
+This is a text-based adventure game developed in C, designed for the CENG209 course. Players navigate through a dungeon, collect items, engage in battles with creatures, and retrieve the golden crown. Utilize strategic commands to manage your inventory, restore health, and overcome challenges within the dungeon's depths.
 
 
 Gameplay
