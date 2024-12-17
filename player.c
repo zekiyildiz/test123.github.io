@@ -4,7 +4,7 @@
 #include "player.h"
 #include "item.h"
 
-Player *create_player() {
+Player *create_player(void) { // void eklendi
     Player *p = malloc(sizeof(Player));
     if(!p) {
         fprintf(stderr, "Failed to allocate player.\n");
@@ -19,7 +19,7 @@ Player *create_player() {
     p->current_room = 0;
     p->inventory_count = 0;
     p->total_capacity = MAX_CAPACITY;
-    p->gold = 0;
+    p->gold = 110;
     for(int i=0; i<MAX_INVENTORY; i++)
         p->inventory[i] = NULL;
     return p;
@@ -53,18 +53,18 @@ int add_item_to_player(Player *player, Item *item) {
         return 0;
     }
     player->inventory[player->inventory_count++] = item;
-    printf("Picked up %s.\n", item->name);
     return 1;
 }
 
-Item *player_find_item(Player *player, const char *item_name) {
-    for(int i=0; i<player->inventory_count; i++) {
-        if(strcmp(player->inventory[i]->name, item_name)==0) {
+Item* player_find_item(Player *player, const char *item_name) {
+    for(int i = 0; i < player->inventory_count; i++) {
+        if(strcmp(player->inventory[i]->name, item_name) == 0) {
             return player->inventory[i];
         }
     }
     return NULL;
 }
+
 
 void list_player_inventory(Player *player) {
     if(player->inventory_count == 0) {
@@ -92,15 +92,17 @@ void list_player_inventory(Player *player) {
     printf("Carrying: %d/%d weight. Gold: %d\n", cur_weight, player->total_capacity, player->gold);
 }
 
-int remove_item_from_player(Player *player, const char *item_name) {
-    for(int i=0; i<player->inventory_count; i++) {
+Item* remove_item_from_player(Player *player, const char *item_name) {
+    for(int i = 0; i < player->inventory_count; i++) {
         if(strcmp(player->inventory[i]->name, item_name) == 0) {
-            free_item(player->inventory[i]);
-            for(int j=i; j<player->inventory_count-1; j++) {
-                player->inventory[j] = player->inventory[j+1];
+            Item *item = player->inventory[i];
+            // Envanterden kaldır
+            for(int j = i; j < player->inventory_count - 1; j++) {
+                player->inventory[j] = player->inventory[j + 1];
             }
             player->inventory_count--;
-            return 1;
+            player->total_capacity -= item->weight;
+            return item;
         }
     }
     return 0;
@@ -182,3 +184,5 @@ int player_unequip_item(Player *player, const char *item_name) {
     printf("You unequipped %s.\n", it->name);
     return 1;
 }
+
+
