@@ -19,8 +19,7 @@ typedef struct {
     int gold;
 } Player;
 
-// Fonksiyon prototipleri
-Player *create_player(void); // void eklendi
+Player *create_player(void);
 void free_player(Player *player);
 
 int add_item_to_player(Player *player, Item *item);

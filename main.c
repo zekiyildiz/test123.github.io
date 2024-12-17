@@ -28,11 +28,11 @@ int main(int argc, char **argv) {
         if(!fgets(line, sizeof(line), stdin)) {
             break; // EOF veya hata
         }
-        // Yeni satırı kaldır
+
         line[strcspn(line,"\n")] = '\0';
         if(strlen(line)==0) continue;
 
-        // Komutları ayrıştır
+
         char *cmd = strtok(line, " ");
         if(!cmd) continue;
 
@@ -48,13 +48,12 @@ int main(int argc, char **argv) {
             }
             Room *current_room = game->rooms[game->player->current_room];
 
-            // **Yeni Eklenen Kontrol:** Eğer odada canavar varsa hareket edemezsiniz
+            // if theres monster, you cant move
             if(current_room->creature && current_room->creature->health > 0) {
                 printf("A %s blocks your way. You must defeat it before moving to another room.\n", current_room->creature->name);
                 continue;
             }
 
-            // Oyuncuyu belirtilen yöne hareket ettirme
             move_player(game, dir);
         }
         else if(strcmp(cmd,"look")==0) {
@@ -71,13 +70,12 @@ int main(int argc, char **argv) {
             }
             Room *r = game->rooms[game->player->current_room];
 
-            // Canavar varsa, eşyayı alamazsınız
+            // if theres monster, you cant use pickup
             if(r->creature) {
                 printf("You cannot pick up items while a %s is present. Defeat it first.\n", r->creature->name);
                 continue;
             }
 
-            // Odanın envanterinde istenen öğeyi bul
             Item *found_item = NULL;
             for(int i = 0; i < r->item_count; i++) {
                 if(strcmp(r->items[i]->name, item_name) == 0) {
@@ -91,20 +89,18 @@ int main(int argc, char **argv) {
                 continue;
             }
 
-            // Öğenin türünü kontrol et
             if(found_item->type == ITEM_TYPE_GENERIC) {
                 printf("You cannot pick up the %s.\n", found_item->name);
                 continue;
             }
 
-            // Öğeyi odadan kaldır
+
             Item *it = remove_item_from_room(r, item_name);
             if(it) {
                 if(add_item_to_player(game->player, it)) {
                     printf("Picked up %s.\n", it->name);
                     check_victory_condition(game);
                 } else {
-                    // Ekleme başarısız olduysa eşyayı odaya geri ekleyin
                     add_item_to_room(r, it);
                 }
             } else {
@@ -118,10 +114,9 @@ int main(int argc, char **argv) {
                 printf("\nUsage: drop <item>\n");
                 continue;
             }
-            // Oyuncunun envanterinde eşyayı bul
+            // find item
             Item *it = remove_item_from_player(game->player, item_name);
             if(it) {
-                // Eşyayı mevcut odaya ekle
                 Room *current_room = game->rooms[game->player->current_room];
                 add_item_to_room(current_room, it);
                 printf("\nDropped %s.\n", it->name);
@@ -130,7 +125,7 @@ int main(int argc, char **argv) {
                 printf("\nYou do not have %s in your inventory.\n", item_name);
             }
         }
-        else if(strcmp(cmd,"use")==0) { // Yeni eklenen komut
+        else if(strcmp(cmd,"use")==0) {
             char *item_name = strtok(NULL, " ");
             if(!item_name) {
                 printf("\nUsage: use <item>\n");
@@ -140,7 +135,7 @@ int main(int argc, char **argv) {
             Room *current_room = game->rooms[game->player->current_room];
 
             if(strcmp(item_name, "juice_machine") == 0) {
-                // Öncelikle, oyuncunun bulunduğu oda juice_machine içeriyor mu kontrol et
+                // checks if theres juice machine
                 int has_juice_machine = 0;
                 for(int i=0; i<current_room->item_count; i++) {
                     if(strcmp(current_room->items[i]->name, "juice_machine") == 0) {
@@ -154,16 +149,11 @@ int main(int argc, char **argv) {
                     continue;
                 }
 
-                // Oyuncunun envanterinde "juice_machine" yok, çünkü otomat taşınabilir bir eşya değil
-                // Bu nedenle, "use" komutu ile doğrudan otomatı kullanacağız
-
-                // Player'ın envanterinde yeterli gold var mı kontrol et
                 if(game->player->gold < 100) {
                     printf("\nYou do not have enough gold to use the juice machine. It costs 100 gold.\n");
                     continue;
                 }
 
-                // Gold'u düşür ve sağlık ekle
                 game->player->gold -= 100;
                 game->player->health += 100;
                 if(game->player->health > game->player->max_health) {

@@ -154,7 +154,6 @@ int player_equip_item(Player *player, const char *item_name) {
         printf("You can't equip that.\n");
         return 0;
     }
-    // Unequip other weapons/armors of same type
     if(it->type == ITEM_TYPE_WEAPON) {
         for(int i=0; i<player->inventory_count; i++) {
             if(player->inventory[i]->type == ITEM_TYPE_WEAPON) {

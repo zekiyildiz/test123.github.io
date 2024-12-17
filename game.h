@@ -15,7 +15,6 @@ typedef struct {
     int turn;
 } GameState;
 
-// Fonksiyon prototipleri
 GameState* init_game(void);
 void free_game(GameState *game);
 void show_room(GameState *game);
@@ -31,6 +30,6 @@ void do_status(GameState *game);
 void do_rest(GameState *game);
 void do_map(GameState *game);
 void check_victory_condition(GameState *game);
-void print_help(void); // 'print_help' fonksiyonunu ekleyin
+void print_help(void);
 
 #endif
