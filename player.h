@@ -24,7 +24,7 @@ void free_player(Player *player);
 
 int add_item_to_player(Player *player, Item *item);
 void list_player_inventory(Player *player);
-int remove_item_from_player(Player *player, const char *item_name);
+Item* remove_item_from_player(Player *player, const char *item_name);
 int player_total_inventory_weight(Player *player);
 int player_attack_power(Player *player);
 int player_defense(Player *player);
@@ -33,5 +33,6 @@ void player_level_up(Player *player);
 int player_equip_item(Player *player, const char *item_name);
 int player_unequip_item(Player *player, const char *item_name);
 Item *player_find_item(Player *player, const char *item_name);
+
 
 #endif

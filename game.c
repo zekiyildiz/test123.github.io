@@ -75,7 +75,6 @@ GameState *init_game() {
 
     // Room 6 connections
     game->rooms[6]->up = game->rooms[3];
-    game->rooms[6]->right = game->rooms[9];
 
     // Room 7 connections
     game->rooms[7]->down = game->rooms[4];
@@ -84,11 +83,12 @@ GameState *init_game() {
     // Room 8 connections
     game->rooms[8]->left = game->rooms[7];
     game->rooms[8]->up = game->rooms[5];
-    game->rooms[8]->right = game->rooms[9];
+    game->rooms[6]->right = game->rooms[9];
 
     // Room 9 connections
     game->rooms[9]->left = game->rooms[8];
-    game->rooms[9]->down = game->rooms[6];
+    // Room 9'dan Room 6'ya bağlantıyı kaldırıyoruz
+    // veya özel bir mekanizma ekliyoruz
 
     // Eşyalar
     add_item_to_room(game->rooms[0], create_item("iron_sword", 5, ITEM_TYPE_WEAPON, 5, 0, 10));
@@ -118,6 +118,7 @@ GameState *init_game() {
 
     return game;
 }
+
 
 
 void free_game(GameState *game) {
@@ -173,6 +174,18 @@ int move_player(GameState *game, const char *direction) {
         return 0;
     }
 
+    // Room 6'dan Room 9'a geçişi kontrol et
+    if(current == game->rooms[6] && next == game->rooms[9]) {
+        // golden_key'e sahip olup olmadığını kontrol et
+        Item *key = player_find_item(game->player, "golden_key");
+        if(!key) {
+            printf("The door to the Treasure Room is locked. You need a golden key to enter.\n");
+            return 0;
+        }
+        // İsteğe bağlı olarak anahtarı kullanabilirsiniz:
+        // remove_item_from_player(game->player, "golden_key");
+    }
+
     if(next) {
         // Bulunan odayı tespit et ve oyuncuyu oraya taşı
         for(int i = 0; i < game->room_count; i++) {
@@ -190,6 +203,8 @@ int move_player(GameState *game, const char *direction) {
     }
     return 0;
 }
+
+
 
 
 void attack_creature(GameState *game) {
@@ -264,22 +279,24 @@ void attack_creature(GameState *game) {
     game->turn++;
 }
 
+// Yardım Fonksiyonu
 void print_help() {
-    printf("Commands:\n");
-    printf(" move <direction> (up/down/left/right)\n");
-    printf(" look\n");
-    printf(" inventory\n");
-    printf(" pickup <item>\n");
-    printf(" attack\n");
-    printf(" equip <item>\n");
-    printf(" unequip <item>\n");
-    printf(" rest\n");
-    printf(" status\n");
-    printf(" map\n");
-    printf(" save <file>\n");
-    printf(" load <file>\n");
-    printf(" list (list saved games)\n");
-    printf(" exit\n");
+    printf("\nAvailable commands:\n");
+    printf("  move <direction>   - Move in a direction (up, down, left, right)\n");
+    printf("  look               - Look around the current room\n");
+    printf("  inventory          - Show your inventory\n");
+    printf("  pickup <item>      - Pick up an item\n");
+    printf("  attack             - Attack the creature in the room\n");
+    printf("  equip <item>       - Equip an item from your inventory\n");
+    printf("  unequip <item>     - Unequip an equipped item\n");
+    printf("  rest               - Rest to regain some health\n");
+    printf("  status             - Show your current status\n");
+    printf("  map                - Display the map of discovered rooms\n");
+    printf("  list               - List saved games\n");
+    printf("  save <filepath>    - Save the current game state\n");
+    printf("  load <filepath>    - Load a saved game state\n");
+    printf("  help               - Show this help message\n");
+    printf("  exit               - Exit the game\n\n");
 }
 
 void check_victory_condition(GameState *game) {
