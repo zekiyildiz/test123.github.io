@@ -13,6 +13,7 @@ Player *create_player() {
     p->level = 1;
     p->xp = 0;
     p->health = 100;
+    p->health = 50;
     p->max_health = 100;
     p->base_strength = 10;
     p->current_room = 0;
