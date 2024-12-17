@@ -1,33 +1,37 @@
 # Makefile
 
-# Derleyici olarak Clang kullan
-CC = clang
+# Derleyici ve bayraklar
+CC = gcc
+CFLAGS = -Wall -Wextra -pedantic -std=c11
+LDFLAGS = 
 
-# Derleyici bayrakları: Tüm uyarıları etkinleştir ve hata ayıklama bilgisi ekle
-CFLAGS = -Wall -g
+# Kaynak dosyalar ve nesne dosyaları
+SRCS = main.c game.c player.c room.c item.c creature.c
+OBJS = $(SRCS:.c=.o)
 
-# Bağımlılık dosyaları
-DEPS = player.h room.h item.h creature.h game.h
+# Yürütülebilir dosya adı
+TARGET = game
 
-# Derlenecek obje dosyaları
-OBJ = main.o player.o room.o item.o creature.o game.o
-
-# Çıktı dosyası adı
-TARGET = dungeon_game
-
-# Varsayılan hedef: tüm projeyi derle
+# Varsayılan hedef: tümünü derle
 all: $(TARGET)
 
-# Hedef dosyayı oluşturmak için gerekli obje dosyalarını derle
-$(TARGET): $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS)
+# Yürütülebilir dosyanın nasıl oluşturulacağını belirt
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
 
-# .c dosyalarını .o dosyalarına derlemek için kural
-%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+# Her bir .c dosyasını .o dosyasına dönüştür
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Temizlik hedefi: obje dosyalarını ve çıktıyı sil
-.PHONY: clean
-
+# Projeyi temizlemek için 'make clean' komutu
 clean:
-	rm -f *.o $(TARGET)
+	rm -f $(OBJS) $(TARGET)
+
+# 'make run' komutu ile oyunu çalıştırmak
+run: $(TARGET)
+	./$(TARGET)
+
+# 'make rebuild' komutu ile projeyi temizleyip tekrar derlemek
+rebuild: clean all
+
+.PHONY: all clean run rebuild
