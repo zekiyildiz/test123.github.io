@@ -4,7 +4,7 @@
 #include "player.h"
 #include "item.h"
 
-Player *create_player() {
+Player *create_player(void) { // void eklendi
     Player *p = malloc(sizeof(Player));
     if(!p) {
         fprintf(stderr, "Failed to allocate player.\n");
@@ -12,13 +12,13 @@ Player *create_player() {
     }
     p->level = 1;
     p->xp = 0;
-    p->health = 100;
+    p->health = 50;
     p->max_health = 100;
     p->base_strength = 10;
     p->current_room = 0;
     p->inventory_count = 0;
     p->total_capacity = MAX_CAPACITY;
-    p->gold = 0;
+    p->gold = 110;
     for(int i=0; i<MAX_INVENTORY; i++)
         p->inventory[i] = NULL;
     return p;
@@ -104,7 +104,7 @@ Item* remove_item_from_player(Player *player, const char *item_name) {
             return item;
         }
     }
-    return NULL;
+    return 0;
 }
 
 int player_attack_power(Player *player) {

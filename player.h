@@ -19,7 +19,8 @@ typedef struct {
     int gold;
 } Player;
 
-Player *create_player();
+// Fonksiyon prototipleri
+Player *create_player(void); // void eklendi
 void free_player(Player *player);
 
 int add_item_to_player(Player *player, Item *item);
@@ -33,6 +34,5 @@ void player_level_up(Player *player);
 int player_equip_item(Player *player, const char *item_name);
 int player_unequip_item(Player *player, const char *item_name);
 Item *player_find_item(Player *player, const char *item_name);
-
 
 #endif

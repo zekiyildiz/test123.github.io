@@ -92,13 +92,14 @@ GameState *init_game() {
 
     // Eşyalar
     add_item_to_room(game->rooms[0], create_item("iron_sword", 5, ITEM_TYPE_WEAPON, 5, 0, 10));
+    add_item_to_room(game->rooms[0], create_item("juice_machine", 0, ITEM_TYPE_GENERIC, 0, 0, 0));
     add_item_to_room(game->rooms[1], create_item("leather_armor", 8, ITEM_TYPE_ARMOR, 0, 2, 15));
     add_item_to_room(game->rooms[2], create_item("steel_sword", 6, ITEM_TYPE_WEAPON, 8, 0, 20));
-    add_item_to_room(game->rooms[3], create_item("chain_armor", 10, ITEM_TYPE_ARMOR, 0, 5, 30));
-    add_item_to_room(game->rooms[4], create_item("magic_ring", 1, ITEM_TYPE_GENERIC, 2, 0, 50));
+    add_item_to_room(game->rooms[3], create_item("iron_armor", 10, ITEM_TYPE_ARMOR, 0, 5, 30));
+    add_item_to_room(game->rooms[4], create_item("magic_ring", 2, ITEM_TYPE_GENERIC, 2, 2, 50));
     add_item_to_room(game->rooms[5], create_item("healing_potion", 2, ITEM_TYPE_FOOD, 0, 0, 25));
     add_item_to_room(game->rooms[6], create_item("silver_sword", 7, ITEM_TYPE_WEAPON, 10, 0, 35));
-    add_item_to_room(game->rooms[7], create_item("dragon_scale_armor", 12, ITEM_TYPE_ARMOR, 0, 10, 60));
+    add_item_to_room(game->rooms[7], create_item("diamond_armor", 12, ITEM_TYPE_ARMOR, 0, 10, 60));
     add_item_to_room(game->rooms[8], create_item("golden_key", 1, ITEM_TYPE_GENERIC, 0, 0, 20));
     add_item_to_room(game->rooms[9], create_item("golden_crown", 1, ITEM_TYPE_QUEST, 0, 0, 0));
 
@@ -344,19 +345,13 @@ void do_status(GameState *game) {
 }
 
 void do_rest(GameState *game) {
-    // Canavar yoksa dinlen
-    Room *r = game->rooms[game->player->current_room];
-    if(r->creature) {
-        printf("You cannot rest while an enemy is present.\n");
-        return;
-    }
-    // Basit dinlenme: sağlık %20 yenilenir, max'ı geçemez.
-    int heal = game->player->max_health/5;
+
+    int heal = game->player->max_health;
     game->player->health += heal;
     if(game->player->health > game->player->max_health) {
         game->player->health = game->player->max_health;
     }
-    printf("You rest and regain some health. Current health: %d/%d\n", game->player->health, game->player->max_health);
+    printf("You used for the code for demo video. Your health maxed out.: %d/%d\n", game->player->health, game->player->max_health);
     game->turn++;
 }
 
