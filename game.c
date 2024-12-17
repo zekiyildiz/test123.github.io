@@ -35,7 +35,7 @@ GameState *init_game() {
         return NULL;
     }
 
-    // Oda tanımlamaları
+    // Rooms
     game->rooms[0] = create_room("You stand in the entrance of the dungeon. Lord Gerede sent you here to find the golden crown deep within.");
     game->rooms[1] = create_room("A narrow corridor with dripping walls.");
     game->rooms[2] = create_room("A small chamber with cracked floor tiles.");
@@ -47,7 +47,6 @@ GameState *init_game() {
     game->rooms[8] = create_room("A vault guarded by ancient traps.");
     game->rooms[9] = create_room("A treasure room glittering with gold and jewels. The golden crown must be here.");
 
-    // Oda bağlantıları (daha karmaşık bir harita)
     // Room 0 connections
     game->rooms[0]->right = game->rooms[1];
 
@@ -87,10 +86,8 @@ GameState *init_game() {
 
     // Room 9 connections
     game->rooms[9]->left = game->rooms[8];
-    // Room 9'dan Room 6'ya bağlantıyı kaldırıyoruz
-    // veya özel bir mekanizma ekliyoruz
 
-    // Eşyalar
+    // Items
     add_item_to_room(game->rooms[0], create_item("iron_sword", 5, ITEM_TYPE_WEAPON, 5, 0, 10));
     add_item_to_room(game->rooms[0], create_item("juice_machine", 0, ITEM_TYPE_GENERIC, 0, 0, 0));
     add_item_to_room(game->rooms[1], create_item("leather_armor", 8, ITEM_TYPE_ARMOR, 0, 2, 15));
@@ -103,7 +100,7 @@ GameState *init_game() {
     add_item_to_room(game->rooms[8], create_item("golden_key", 1, ITEM_TYPE_GENERIC, 0, 0, 20));
     add_item_to_room(game->rooms[9], create_item("golden_crown", 1, ITEM_TYPE_QUEST, 0, 0, 0));
 
-    // Canavarlar (oda zorluğuna göre)
+    // Monsters
     game->rooms[0]->creature = create_creature("goblin", 30, 5, 30, 10);
     game->rooms[1]->creature = create_creature("orc", 40, 7, 40, 20);
     game->rooms[2]->creature = create_creature("troll", 50, 10, 50, 30);
@@ -112,7 +109,7 @@ GameState *init_game() {
     game->rooms[5]->creature = create_creature("cave_spider", 25, 4, 25, 10);
     game->rooms[6]->creature = create_creature("stone_golem", 70, 14, 70, 50);
     game->rooms[7]->creature = create_creature("ancient_guardian", 80, 16, 80, 60);
-    game->rooms[8]->creature = create_creature("trap_master", 50, 12, 50, 30);
+    game->rooms[8]->creature = create_creature("fire_golem", 70, 12, 50, 30);
     game->rooms[9]->creature = create_creature("dragon", 100, 20, 100, 100);
 
     game->rooms[0]->discovered = 1;
@@ -138,7 +135,6 @@ void show_room(GameState *game) {
     Room *r = game->rooms[game->player->current_room];
     printf("\n%s\n", r->description);
 
-    // Mevcut yönleri göster
     printf("Exits: ");
     int first = 1;
     if(r->up) { printf("up"); first = 0; }
@@ -147,7 +143,6 @@ void show_room(GameState *game) {
     if(r->right) { if(!first) printf(", "); printf("right"); }
     printf("\n");
 
-    // Oda eşyalarını göster
     if(r->item_count > 0) {
         printf("Items here:\n");
         for(int i=0; i<r->item_count; i++) {
@@ -155,7 +150,6 @@ void show_room(GameState *game) {
         }
     }
 
-    // Oda canavarını göster
     if(r->creature) {
         printf("A %s blocks your way.\n", r->creature->name);
     }
@@ -175,20 +169,16 @@ int move_player(GameState *game, const char *direction) {
         return 0;
     }
 
-    // Room 6'dan Room 9'a geçişi kontrol et
     if(current == game->rooms[6] && next == game->rooms[9]) {
-        // golden_key'e sahip olup olmadığını kontrol et
+        // checks the golden_key
         Item *key = player_find_item(game->player, "golden_key");
         if(!key) {
             printf("The door to the Treasure Room is locked. You need a golden key to enter.\n");
             return 0;
         }
-        // İsteğe bağlı olarak anahtarı kullanabilirsiniz:
-        // remove_item_from_player(game->player, "golden_key");
     }
 
     if(next) {
-        // Bulunan odayı tespit et ve oyuncuyu oraya taşı
         for(int i = 0; i < game->room_count; i++) {
             if(game->rooms[i] == next) {
                 game->player->current_room = i;
@@ -216,7 +206,7 @@ void attack_creature(GameState *game) {
         return;
     }
 
-    // %20 iskalanma şansı
+    // %20 miss chance
     int miss_chance = rand() % 100;
     if(miss_chance < 20) {
         printf("You missed your attack!\n");
@@ -240,7 +230,7 @@ void attack_creature(GameState *game) {
 
     int base_damage = player_attack_power(game->player);
     int dmg = (int)(base_damage);
-    // %20 kritik vuruş şansı
+    // %20 critical hit chance
     int crit_chance = rand() % 100;
     if(crit_chance < 20) {
         dmg = (int)(base_damage * 1.5);
@@ -252,7 +242,6 @@ void attack_creature(GameState *game) {
     r->creature->health -= dmg;
     if(r->creature->health <= 0) {
         printf("You have slain the %s.\n", r->creature->name);
-        // Reward
         game->player->gold += r->creature->gold_reward;
         player_gain_xp(game->player, r->creature->xp_reward);
         free_creature(r->creature);
@@ -262,7 +251,6 @@ void attack_creature(GameState *game) {
         return;
     }
 
-    // Creature attacks back
     printf("The %s attacks you back!\n", r->creature->name);
     int def = player_defense(game->player);
     int dmg_to_player = r->creature->strength - def;
@@ -280,7 +268,7 @@ void attack_creature(GameState *game) {
     game->turn++;
 }
 
-// Yardım Fonksiyonu
+// help
 void print_help() {
     printf("\nAvailable commands:\n");
     printf("  move <direction>   - Move in a direction (up, down, left, right)\n");
